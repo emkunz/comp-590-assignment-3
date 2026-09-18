@@ -35,7 +35,7 @@ canvas.height = window.innerHeight;
 
   };
 
-    const ball = {x:canvas.width/2, //the x location of the pad
+  const ball = {x:canvas.width/2, //the x location of the pad
               y:canvas.width/2.35, //the y location of the pad
               angle: 0, //the angle of the pad
               speed: 12, //the speed of the pad when moving with curson
@@ -43,6 +43,12 @@ canvas.height = window.innerHeight;
               pathTimer: 0,
             nextFoot: -1
 
+  };
+
+  const block = {x:canvas.width/4, 
+                y:canvas.height/4, 
+                width: 150,
+                height: 50
   };
 			
   // resize canvas
@@ -61,10 +67,33 @@ canvas.height = window.innerHeight;
   });
 
 
-  function drawBorder() {
+function drawBorder() {
     context.strokeStyle = "#8d1919";
     context.lineWidth = 20;
     context.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+}
+
+function drawText() {
+  if(!tracking){
+    context.save();
+    context.fillStyle = "#ffffff";
+    context.font = "40px Arial";
+    context.fillText("Any key or button to start", canvas.width / 3, canvas.height / 2);
+
+    context.restore();
+  }
+}
+
+function drawBlocks() 
+{
+  context.save();
+  context.fillStyle = "#0379ff";  
+  context.strokeStyle = "#ffffff";
+  context.lineWidth = 5;
+  context.beginPath();
+  context.fillRect(block.x, block.y, block.width, block.height);
+  context.strokeRect(block.x, block.y, block.width, block.height);
+
 }
 
     function drawBall() {
@@ -100,9 +129,10 @@ canvas.height = window.innerHeight;
       return;
     }
     
+    
     const dx = mouse.x - bouncePad.x;
 
-    //only move with cursor
+    //only move pad with cursor
     if (Math.abs(dx) > 0.01) {
 
         //move
@@ -128,7 +158,9 @@ canvas.height = window.innerHeight;
     update();
     drawBall();
     drawBorder();
+    drawText();
     drawBouncePad();
+    if(tracking){drawBlocks();}
     requestAnimationFrame(mainLoop);
   }
 
