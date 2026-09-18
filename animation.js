@@ -45,11 +45,21 @@ canvas.height = window.innerHeight;
 
   };
 
-  const block = {x:canvas.width/4, 
-                y:canvas.height/4, 
-                width: 150,
-                height: 50
-  };
+  //block spawning gird
+  const rows = 6;
+  const cols = 18;
+  const bricks = [];
+
+  for (let row = 0; row < rows; row++) {
+      bricks[row] = [];
+
+      for (let col = 0; col < cols; col++) {
+          bricks[row][col] = {
+            alive: true,
+          color: getRandomColor(),
+      }
+    }
+  }
 			
   // resize canvas
   window.addEventListener('resize', function() {
@@ -71,6 +81,7 @@ function drawBorder() {
     context.strokeStyle = "#8d1919";
     context.lineWidth = 20;
     context.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+    context.restore()
 }
 
 function drawText() {
@@ -84,28 +95,62 @@ function drawText() {
   }
 }
 
+function getRandomColor() {
+ return "#" + Math.floor(Math.random() * 16777215)
+   .toString(16)
+   .padStart(6, '0');
+}
+
 function drawBlocks() 
 {
   context.save();
-  context.fillStyle = "#0379ff";  
-  context.strokeStyle = "#ffffff";
-  context.lineWidth = 5;
-  context.beginPath();
-  context.fillRect(block.x, block.y, block.width, block.height);
-  context.strokeRect(block.x, block.y, block.width, block.height);
 
+  const width = 76;
+  const height = 30;
+  const startX = (canvas.width - (cols * (width))) / 2;
+  const startY = 75;
+
+    //spawn multiple in frame
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if (bricks[row][col].alive) {
+        context.fillStyle = bricks[row][col].color;
+        context.strokeStyle = "#ffffff";
+        context.lineWidth = 3;
+
+        const x = startX + col * (width);
+        const y = startY + row * (height);
+
+        context.fillRect(
+            x,
+            y,
+            width,
+            height
+        );
+
+        context.strokeRect(
+            x,
+            y,
+            width,
+            height
+        );
+      }
+    }
+  }
+  context.restore();
 }
 
-    function drawBall() {
-      context.save();
-      context.translate(ball.x, ball.y);
+  function drawBall() {
+    context.save();
+    context.translate(ball.x, ball.y);
 
-      context.fillStyle = "#ffffff";
-      context.beginPath();
-      context.arc(0, 0, 20, 0, Math.PI * 2);
-      context.fill();
+    context.fillStyle = "#ffffff";
+    context.beginPath();
+    context.arc(0, 0, 20, 0, Math.PI * 2);
+    context.fill();
 
-      context.restore();
+    context.restore();
   }
 
 
