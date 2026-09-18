@@ -3,8 +3,8 @@ window.onload = function() {
 var canvas = document.getElementById("canvas");
   var context = canvas.getContext("2d");
 
-canvas.width = 1200;
-canvas.height = 1200;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
     let mouse = {
         x: canvas.width / 2,
@@ -41,8 +41,21 @@ canvas.height = 1200;
     canvas.height = window.innerHeight;
 
     mouse.x = canvas.width / 2;
-    mouse.y = canvas.height / 2;    
+    mouse.y = canvas.height / 2;   
+    
+    bouncePad.x = canvas.width * 0.75;
+    bouncePad.y = canvas.height / 2;
+
+    ball.x = canvas.width / 2;
+    ball.y = canvas.height / 3; 
   });
+
+
+  function drawBorder() {
+    context.strokeStyle = "#8d1919";
+    context.lineWidth = 20;
+    context.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+}
 
     function drawBall() {
       context.save();
@@ -50,7 +63,7 @@ canvas.height = 1200;
 
       context.fillStyle = "#ffffff";
       context.beginPath();
-      context.arc(0, 0, 40, 0, Math.PI * 2);
+      context.arc(0, 0, 20, 0, Math.PI * 2);
       context.fill();
 
       context.restore();
@@ -64,7 +77,7 @@ canvas.height = 1200;
 
         context.fillStyle = "#ffffff";
         context.beginPath();
-        context.rect(-50, -30, 300, 30);
+        context.rect(-50, -30, 150, 20);
         context.fill();
 
         context.restore();
@@ -89,6 +102,7 @@ canvas.height = 1200;
     context.clearRect(0, 0, canvas.width, canvas.height);	
     update();
     drawBall();
+    drawBorder();
     drawBouncePad();
     requestAnimationFrame(mainLoop);
   }
