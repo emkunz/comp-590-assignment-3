@@ -3,8 +3,8 @@ window.onload = function() {
 var canvas = document.getElementById("canvas");
   var context = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 1200;
+canvas.height = 1200;
 
     let mouse = {
         x: canvas.width / 2,
@@ -16,6 +16,16 @@ canvas.height = window.innerHeight;
     });
 			
   const bouncePad = {x:canvas.width/2, //the x location of the pad
+              y:canvas.width/2, //the y location of the pad
+              angle: 0, //the angle of the pad
+              speed: 12, //the speed of the pad when moving with curson
+              path: [], //the path that the turtle has taken ??
+              pathTimer: 0,
+            nextFoot: -1
+
+  };
+
+    const ball = {x:canvas.width/2, //the x location of the pad
               y:canvas.width/3, //the y location of the pad
               angle: 0, //the angle of the pad
               speed: 12, //the speed of the pad when moving with curson
@@ -33,6 +43,19 @@ canvas.height = window.innerHeight;
     mouse.x = canvas.width / 2;
     mouse.y = canvas.height / 2;    
   });
+
+    function drawBall() {
+      context.save();
+      context.translate(ball.x, ball.y);
+
+      context.fillStyle = "#ffffff";
+      context.beginPath();
+      context.arc(0, 0, 40, 0, Math.PI * 2);
+      context.fill();
+
+      context.restore();
+  }
+
 
   //draw pad
     function drawBouncePad() {
@@ -65,6 +88,7 @@ canvas.height = window.innerHeight;
   function mainLoop() {		
     context.clearRect(0, 0, canvas.width, canvas.height);	
     update();
+    drawBall();
     drawBouncePad();
     requestAnimationFrame(mainLoop);
   }
