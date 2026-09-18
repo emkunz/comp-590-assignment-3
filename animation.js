@@ -23,6 +23,7 @@ canvas.height = window.innerHeight;
 
     window.addEventListener("mousemove", function (event) {
         mouse.x = event.clientX;
+        mouse.y = event.clientY;
     });
 			
   const bouncePad = {x:canvas.width/2, //the x location of the pad
@@ -37,8 +38,8 @@ canvas.height = window.innerHeight;
 
   const ball = {x:canvas.width/2, //the x location of the pad
               y:canvas.width/2.35, //the y location of the pad
-              angle: 0, //the angle of the pad
-              speed: 12, //the speed of the pad when moving with curson
+              angle: 30, //the angle of the pad
+              speed: 8, //the speed of the pad when moving with curson
               path: [], //the path that the turtle has taken ??
               pathTimer: 0,
             nextFoot: -1
@@ -167,6 +168,51 @@ function drawBlocks()
         context.restore();
     }
 
+  function brickCollision() {
+    const width = 76;
+    const height = 30;
+    const startX = (canvas.width - (cols * (width))) / 2;
+    const startY = 75;  
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        if (!bricks[row][col].alive) { continue; }
+          
+          const x = startX + col * (width);
+          const y = startY + row * (height);
+
+          if (ball.x + 20 > x && ball.x - 20 < x + width &&
+              ball.y + 20 > y && ball.y - 20 < y + height) {
+            bricks[row][col].alive = false;
+
+            ball.angle = -ball.angle; // Reverse the ball's angle to bounce it back
+
+            return;
+          }
+        }
+      }
+    }
+
+    function borderCollision() {
+      const border = 20;
+      const radius = 20; // Ball radius
+
+      // left
+      if (ball.x - radius < border || ball.x + radius > canvas.width - border) {
+        ball.angle = Math.PI - ball.angle; // Reverse the horizontal direction
+      }
+
+      //right
+      if (ball.x + radius > canvas.width - border) {
+        ball.angle = Math.PI - ball.angle; // Reverse the horizontal direction
+      }
+
+      //top
+      if (ball.y - radius < border) {
+        ball.angle = -ball.angle; // Reverse the vertical direction
+      } 
+    }
+
   //follow cursor
   function update() {
 
@@ -194,6 +240,20 @@ function drawBlocks()
     if (bouncePad.x > canvas.width-border-halfWidth){
         bouncePad.x = canvas.width-border-halfWidth;
     } 
+
+    if (bricks .every(row => row.every(brick => !brick.alive))) {
+      context.save();
+      context.fillStyle = "#ffffff";
+      context.font = "40px Arial";
+      context.fillText("CONGRATULATIONS, YOU'RE A WINNER!", canvas.width / 3, canvas.height / 2);
+
+    }
+
+    ball.x += Math.cos(ball.angle) * ball.speed;
+    ball.y += Math.sin(ball.angle) * ball.speed;
+
+    brickCollision();
+    borderCollision();
   }
 
 				
