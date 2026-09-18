@@ -18,7 +18,7 @@ canvas.height = window.innerHeight;
   const bouncePad = {x:canvas.width/2, //the x location of the pad
               y:canvas.width/2, //the y location of the pad
               angle: 0, //the angle of the pad
-              speed: 12, //the speed of the pad when moving with curson
+              speed: 8, //the speed of the pad when moving with curson
               path: [], //the path that the turtle has taken ??
               pathTimer: 0,
             nextFoot: -1
@@ -77,7 +77,7 @@ canvas.height = window.innerHeight;
 
         context.fillStyle = "#ffffff";
         context.beginPath();
-        context.rect(-50, -30, 150, 20);
+        context.rect(-75, -75, 150, 20);
         context.fill();
 
         context.restore();
@@ -94,6 +94,17 @@ canvas.height = window.innerHeight;
         //move
         bouncePad.x += Math.sign(dx) * bouncePad.speed;
     }
+
+    const border = 20;
+    const halfWidth = 75; //150/2
+
+    if (bouncePad.x < border+halfWidth){
+        bouncePad.x = border+halfWidth;
+    }
+
+    if (bouncePad.x > canvas.width-border-halfWidth){
+        bouncePad.x = canvas.width-border-halfWidth;
+    } 
   }
 
 				
