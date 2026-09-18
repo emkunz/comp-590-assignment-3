@@ -6,10 +6,20 @@ var canvas = document.getElementById("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+    let tracking = false;
+
     let mouse = {
         x: canvas.width / 2,
         y: canvas.height / 2
     };
+
+    window.addEventListener("mousedown", function() {
+      tracking = true;
+    });
+
+    window.addEventListener("keydown", function() {
+        tracking = true;
+    });
 
     window.addEventListener("mousemove", function (event) {
         mouse.x = event.clientX;
@@ -26,7 +36,7 @@ canvas.height = window.innerHeight;
   };
 
     const ball = {x:canvas.width/2, //the x location of the pad
-              y:canvas.width/3, //the y location of the pad
+              y:canvas.width/2.35, //the y location of the pad
               angle: 0, //the angle of the pad
               speed: 12, //the speed of the pad when moving with curson
               path: [], //the path that the turtle has taken ??
@@ -85,6 +95,10 @@ canvas.height = window.innerHeight;
 
   //follow cursor
   function update() {
+
+    if(!tracking){
+      return;
+    }
     
     const dx = mouse.x - bouncePad.x;
 
