@@ -65,6 +65,8 @@ canvas.height = window.innerHeight;
 
   };
 
+  resetPositions();
+
   function resetPositions() {
     bouncePad.x = canvas.width / 2;
     bouncePad.y = canvas.height * 0.85;
@@ -124,7 +126,8 @@ function drawText() {
     context.save();
     context.fillStyle = "#ffffff";
     context.font = "40px Arial";
-    context.fillText("Click here to play", canvas.width / 2.5, canvas.height / 4);
+    context.textAlign = "center";
+    context.fillText("Click here to play", canvas.width / 2, canvas.height / 4);
 
     context.restore();
   }
@@ -289,16 +292,35 @@ function bouncePadCollision() {
     const padLeft = bouncePad.x - bouncePad.width / 2;
     const padRight = bouncePad.x + bouncePad.width / 2;
     const padTop = bouncePad.y - bouncePad.height;
+    const padBottom = bouncePad.y;
 
-    if (ball.y > 0 && Math.sin(ball.angle) > 0) {
-        if (
-            ball.x + radius > padLeft &&
-            ball.x - radius < padRight &&
-            ball.y + radius > padTop &&
-            ball.y - radius < bouncePad.y
-        ) {
-            ball.angle = -ball.angle;
+    if (
+        ball.x + radius > padLeft &&
+        ball.x - radius < padRight &&
+        ball.y + radius > padTop &&
+        ball.y - radius < padBottom
+    ) {
+        const overlapLeft = ball.x + radius - padLeft;
+        const overlapRight = padRight - (ball.x - radius);
+        const overlapTop = ball.y + radius - padTop;
+        const overlapBottom = padBottom - (ball.y - radius);
+
+        const minOverlap = Math.min(
+            overlapLeft,
+            overlapRight,
+            overlapTop,
+            overlapBottom
+        );
+
+        if (minOverlap === overlapTop && Math.sin(ball.angle) > 0) {
             ball.y = padTop - radius;
+            ball.angle = -ball.angle;
+        } else if (minOverlap === overlapLeft) {
+            ball.x = padLeft - radius;
+            ball.angle = Math.PI - ball.angle;
+        } else if (minOverlap === overlapRight) {
+            ball.x = padRight + radius;
+            ball.angle = Math.PI - ball.angle;
         }
     }
 }
