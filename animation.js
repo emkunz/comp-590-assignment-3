@@ -20,16 +20,13 @@ canvas.height = window.innerHeight;
         ball.x = bouncePad.x;
         ball.y = bouncePad.y - 100;
 
-        // Put ball above the center of the platform
-        ball.x = bouncePad.x;
-        ball.y = bouncePad.y - 100;
-
         // Calculate direction toward mouse click
         const dx = event.clientX - ball.x;
         const dy = event.clientY - ball.y;
 
         // Make ball move toward click
         ball.angle = Math.atan2(dy, dx);
+        // ball.angle=0; // testing the deterministic game loop
 
         // Start ball
         tracking = true;
@@ -68,11 +65,16 @@ canvas.height = window.innerHeight;
   resetPositions();
 
   function resetPositions() {
+
+    bouncePad.width = canvas.width * 0.12;
+    bouncePad.height = canvas.height * 0.025;
+    ball.radius = Math.min(canvas.width, canvas.height) * 0.025;
     bouncePad.x = canvas.width / 2;
     bouncePad.y = canvas.height * 0.85;
 
     ball.x = bouncePad.x;
     ball.y = bouncePad.y - 100;
+
 }
 
   //block spawning gird
@@ -99,22 +101,13 @@ canvas.height = window.innerHeight;
     mouse.x = canvas.width / 2;
     mouse.y = canvas.height / 2;
 
-    bouncePad.width = canvas.width * 0.12;
-    bouncePad.height = canvas.height * 0.025;
-
-    bouncePad.x = canvas.width / 2;
-    bouncePad.y = canvas.height * 0.85;
-
-    ball.x = bouncePad.x;
-    ball.y = bouncePad.y - 100;
-    ball.radius = Math.min(canvas.width, canvas.height) * 0.025;
-
     resetPositions();
 
   });
 
 
 function drawBorder() {
+    context.save();
     context.strokeStyle = "#8d1919";
     context.lineWidth = 20;
     context.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
@@ -223,8 +216,8 @@ function drawBall() {
           const x = startX + col * (width);
           const y = startY + row * (height);
 
-          if (ball.x + 20 > x && ball.x - 20 < x + width &&
-              ball.y + 20 > y && ball.y - 20 < y + height) {
+          if (ball.x + ball.radius > x && ball.x - ball.radius < x + width &&
+              ball.y + ball.radius > y && ball.y - ball.radius < y + height) {
             bricks[row][col].alive = false;
 
             ball.angle = -ball.angle; // Reverse the ball's angle to bounce it back
@@ -237,7 +230,7 @@ function drawBall() {
 
 function borderCollision() {
     const border = 20;
-    const radius = 20;
+    const radius = ball.radius;
 
     // Left wall
     if (ball.x - radius <= border) {
@@ -342,7 +335,7 @@ function bouncePadCollision() {
     }
 
     const border = 20;
-    const halfWidth = 75; //150/2
+    const halfWidth = bouncePad.width / 2;
 
     if (bouncePad.x < border+halfWidth){
         bouncePad.x = border+halfWidth;
@@ -364,8 +357,12 @@ function bouncePadCollision() {
 
     }
 
+    console.log("ball.y = " + ball.y);
+
     ball.x += Math.cos(ball.angle) * ball.speed;
     ball.y += Math.sin(ball.angle) * ball.speed;
+
+    console.log("ball.x = " + ball.x);
 
     brickCollision();
     borderCollision();
@@ -376,20 +373,41 @@ function bouncePadCollision() {
 
 				
   
-  function mainLoop() {		
-    context.clearRect(0, 0, canvas.width, canvas.height);	
-    update();
+let lastTime = performance.now();
+let accumulator = 0;
+const fixedStep = 1000 / 60;
+
+function mainLoop(currentTime) {
+    let deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    if (deltaTime > 250) {
+        deltaTime = 250;
+    }
+
+    accumulator += deltaTime;
+
+    while (accumulator >= fixedStep) {
+        update();
+        accumulator -= fixedStep;
+    }
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     drawLives();
     drawBall();
     drawBorder();
     drawText();
     drawBouncePad();
+
     if (tracking || newGame) {
         drawBlocks();
     }
-    requestAnimationFrame(mainLoop);
-  }
 
-  mainLoop();
+    requestAnimationFrame(mainLoop);
+}
+
+requestAnimationFrame(mainLoop);
+
 }
 
