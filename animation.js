@@ -7,18 +7,34 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
     let tracking = false;
+    let lives = 3;
+    let newGame = false;
 
     let mouse = {
         x: canvas.width / 2,
         y: canvas.height / 2
     };
 
-    window.addEventListener("mousedown", function() {
-      tracking = true;
-    });
+    window.addEventListener("mousedown", function(event) {
+    if (!tracking) {
+        ball.x = bouncePad.x;
+        ball.y = bouncePad.y - 100;
 
-    window.addEventListener("keydown", function() {
+        // Put ball above the center of the platform
+        ball.x = bouncePad.x;
+        ball.y = bouncePad.y - 100;
+
+        // Calculate direction toward mouse click
+        const dx = event.clientX - ball.x;
+        const dy = event.clientY - ball.y;
+
+        // Make ball move toward click
+        ball.angle = Math.atan2(dy, dx);
+
+        // Start ball
         tracking = true;
+        newGame = true;
+    }
     });
 
     window.addEventListener("mousemove", function (event) {
@@ -26,29 +42,40 @@ canvas.height = window.innerHeight;
         mouse.y = event.clientY;
     });
 			
-  const bouncePad = {x:canvas.width/2, //the x location of the pad
-              y:canvas.width/2, //the y location of the pad
-              angle: 0, //the angle of the pad
-              speed: 8, //the speed of the pad when moving with curson
-              path: [], //the path that the turtle has taken ??
-              pathTimer: 0,
-            nextFoot: -1
+  const bouncePad = {    x: 0,
+    y: 0,
+    width: 150,
+    height: 20,
+    angle: 0,
+    speed: 8,
+    path: [],
+    pathTimer: 0,
+    nextFoot: -1
 
   };
 
-  const ball = {x:canvas.width/2, //the x location of the pad
-              y:canvas.width/2.35, //the y location of the pad
-              angle: 30, //the angle of the pad
-              speed: 8, //the speed of the pad when moving with curson
-              path: [], //the path that the turtle has taken ??
-              pathTimer: 0,
-            nextFoot: -1
+  const ball = {    x: 0,
+    y: 0,
+    radius: 20,
+    angle: 30,
+    speed: 8,
+    path: [],
+    pathTimer: 0,
+    nextFoot: -1
 
   };
+
+  function resetPositions() {
+    bouncePad.x = canvas.width / 2;
+    bouncePad.y = canvas.height * 0.85;
+
+    ball.x = bouncePad.x;
+    ball.y = bouncePad.y - 100;
+}
 
   //block spawning gird
-  const rows = 6;
-  const cols = 18;
+  const rows = 4;
+  const cols = 10;
   const bricks = [];
 
   for (let row = 0; row < rows; row++) {
@@ -68,13 +95,20 @@ canvas.height = window.innerHeight;
     canvas.height = window.innerHeight;
 
     mouse.x = canvas.width / 2;
-    mouse.y = canvas.height / 2;   
-    
-    bouncePad.x = canvas.width * 0.75;
-    bouncePad.y = canvas.height / 2;
+    mouse.y = canvas.height / 2;
 
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 3; 
+    bouncePad.width = canvas.width * 0.12;
+    bouncePad.height = canvas.height * 0.025;
+
+    bouncePad.x = canvas.width / 2;
+    bouncePad.y = canvas.height * 0.85;
+
+    ball.x = bouncePad.x;
+    ball.y = bouncePad.y - 100;
+    ball.radius = Math.min(canvas.width, canvas.height) * 0.025;
+
+    resetPositions();
+
   });
 
 
@@ -86,11 +120,11 @@ function drawBorder() {
 }
 
 function drawText() {
-  if(!tracking){
+  if(!tracking && !newGame) {
     context.save();
     context.fillStyle = "#ffffff";
     context.font = "40px Arial";
-    context.fillText("Any key or button to start", canvas.width / 3, canvas.height / 2);
+    context.fillText("Click here to play", canvas.width / 2.5, canvas.height / 4);
 
     context.restore();
   }
@@ -106,10 +140,10 @@ function drawBlocks()
 {
   context.save();
 
-  const width = 76;
-  const height = 30;
-  const startX = (canvas.width - (cols * (width))) / 2;
-  const startY = 75;
+const width = canvas.width * 0.06;
+const height = canvas.height * 0.04;
+const startX = (canvas.width - (cols * width)) / 2;
+const startY = canvas.height * 0.15;
 
     //spawn multiple in frame
 
@@ -142,37 +176,42 @@ function drawBlocks()
   context.restore();
 }
 
-  function drawBall() {
-    context.save();
-    context.translate(ball.x, ball.y);
-
-    context.fillStyle = "#ffffff";
-    context.beginPath();
-    context.arc(0, 0, 20, 0, Math.PI * 2);
-    context.fill();
-
-    context.restore();
-  }
+function drawBall() {
+  context.save();
+  context.fillStyle = "#ffffff";
+  context.beginPath();
+  context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+  context.fill();
+  context.restore();
+}
 
 
   //draw pad
     function drawBouncePad() {
-        context.save();
-        context.translate(bouncePad.x, bouncePad.y);
+    context.save();
+    context.fillStyle = "#ffffff";
+    context.fillRect(
+        bouncePad.x - bouncePad.width / 2,
+        bouncePad.y - bouncePad.height,
+        bouncePad.width,
+        bouncePad.height
+    );
+    context.restore();
+  }
 
-        context.fillStyle = "#ffffff";
-        context.beginPath();
-        context.rect(-75, -75, 150, 20);
-        context.fill();
-
-        context.restore();
-    }
+  function drawLives() {
+    context.save();
+    context.fillStyle = "#ffffff";
+    context.font = "30px Arial";
+    context.fillText("Lives: " + lives, 30, 50);
+    context.restore();
+}
 
   function brickCollision() {
-    const width = 76;
-    const height = 30;
-    const startX = (canvas.width - (cols * (width))) / 2;
-    const startY = 75;  
+    const width = canvas.width * 0.06;
+    const height = canvas.height * 0.04;
+    const startX = (canvas.width - (cols * width)) / 2;
+    const startY = canvas.height * 0.15; 
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
@@ -193,26 +232,76 @@ function drawBlocks()
       }
     }
 
-    function borderCollision() {
-      const border = 20;
-      const radius = 20; // Ball radius
+function borderCollision() {
+    const border = 20;
+    const radius = 20;
 
-      // left
-      if (ball.x - radius < border || ball.x + radius > canvas.width - border) {
-        ball.angle = Math.PI - ball.angle; // Reverse the horizontal direction
-      }
-
-      //right
-      if (ball.x + radius > canvas.width - border) {
-        ball.angle = Math.PI - ball.angle; // Reverse the horizontal direction
-      }
-
-      //top
-      if (ball.y - radius < border) {
-        ball.angle = -ball.angle; // Reverse the vertical direction
-      } 
+    // Left wall
+    if (ball.x - radius <= border) {
+        ball.x = border + radius;
+        ball.angle = Math.PI - ball.angle;
     }
 
+    // Right wall
+    if (ball.x + radius >= canvas.width - border) {
+        ball.x = canvas.width - border - radius;
+        ball.angle = Math.PI - ball.angle;
+    }
+
+    // Top wall
+    if (ball.y - radius <= border) {
+        ball.y = border + radius;
+        ball.angle = -ball.angle;
+    }
+}
+
+function bottomCollision() {
+    const radius = ball.radius;
+    const border = 20;
+
+    if (ball.y + radius >= canvas.height - border) {
+        lives--;
+
+        bouncePad.x = canvas.width / 2;
+        bouncePad.y = canvas.height * 0.85;
+
+        ball.x = bouncePad.x;
+        ball.y = bouncePad.y - ball.radius - 20;
+
+        tracking = false;
+
+        if (lives <= 0) {
+            lives = 3;
+            newGame = false;
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    bricks[row][col].alive = true;
+                }
+            }
+        }
+    }
+}
+
+
+function bouncePadCollision() {
+    const radius = ball.radius;
+    const padLeft = bouncePad.x - bouncePad.width / 2;
+    const padRight = bouncePad.x + bouncePad.width / 2;
+    const padTop = bouncePad.y - bouncePad.height;
+
+    if (ball.y > 0 && Math.sin(ball.angle) > 0) {
+        if (
+            ball.x + radius > padLeft &&
+            ball.x - radius < padRight &&
+            ball.y + radius > padTop &&
+            ball.y - radius < bouncePad.y
+        ) {
+            ball.angle = -ball.angle;
+            ball.y = padTop - radius;
+        }
+    }
+}
   //follow cursor
   function update() {
 
@@ -241,11 +330,15 @@ function drawBlocks()
         bouncePad.x = canvas.width-border-halfWidth;
     } 
 
+    //lose condition
+
+
+    //win condition
     if (bricks .every(row => row.every(brick => !brick.alive))) {
       context.save();
       context.fillStyle = "#ffffff";
       context.font = "40px Arial";
-      context.fillText("CONGRATULATIONS, YOU'RE A WINNER!", canvas.width / 3, canvas.height / 2);
+      context.fillText("CONGRATULATIONS, YOU'RE A WINNER!", canvas.width / 2, canvas.height / 2);
 
     }
 
@@ -254,18 +347,24 @@ function drawBlocks()
 
     brickCollision();
     borderCollision();
+    bouncePadCollision();
+    bottomCollision();
   }
+
 
 				
   
   function mainLoop() {		
     context.clearRect(0, 0, canvas.width, canvas.height);	
     update();
+    drawLives();
     drawBall();
     drawBorder();
     drawText();
     drawBouncePad();
-    if(tracking){drawBlocks();}
+    if (tracking || newGame) {
+        drawBlocks();
+    }
     requestAnimationFrame(mainLoop);
   }
 
